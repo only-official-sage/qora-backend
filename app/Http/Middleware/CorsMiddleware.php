@@ -4,13 +4,14 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class CorsMiddleware
 {
     /**
      * Handle an incoming request.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next)
     {
@@ -24,14 +25,14 @@ class CorsMiddleware
         foreach ($config['paths'] as $configuredPath) {
             // Convert glob pattern to regex
             $pattern = str_replace(['*', '?'], ['.*', '.'], preg_quote($configuredPath, '/'));
-            $pattern = '/^' . $pattern . '$/';
+            $pattern = '/^'.$pattern.'$/';
             if (preg_match($pattern, $path)) {
                 $matchesPath = true;
                 break;
             }
         }
 
-        if (!$matchesPath) {
+        if (! $matchesPath) {
             return $next($request);
         }
 
@@ -82,7 +83,7 @@ class CorsMiddleware
         }
 
         // Exposed headers
-        if (!empty($config['exposed_headers'])) {
+        if (! empty($config['exposed_headers'])) {
             $response->headers->set('Access-Control-Expose-Headers', implode(', ', $config['exposed_headers']));
         }
 

@@ -4,11 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
-use App\Models\Admin;
 
 class Section extends Model
 {
     public $incrementing = false;
+
     protected $keyType = 'string';
 
     protected $fillable = [
@@ -17,10 +17,12 @@ class Section extends Model
         'name',
         'type',
         'icon',
+        'status',
     ];
 
     protected $casts = [
         'icon' => 'json',
+        'status' => 'string',
     ];
 
     protected static function boot()

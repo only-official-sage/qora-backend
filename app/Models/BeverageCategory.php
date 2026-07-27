@@ -8,7 +8,9 @@ use Illuminate\Support\Str;
 class BeverageCategory extends Model
 {
     protected $fillable = ['admin_id', 'name'];
+
     public $incrementing = false;
+
     protected $keyType = 'string';
 
     public function admin()

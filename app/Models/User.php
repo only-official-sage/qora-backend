@@ -15,6 +15,7 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
 
     public $incrementing = false;
+
     protected $keyType = 'string';
 
     /**
@@ -54,6 +55,6 @@ class User extends Authenticatable
     protected static function boot()
     {
         parent::boot();
-        static::creating(fn($user) => empty($user->id) && $user->id = Str::uuid()->toString());
+        static::creating(fn ($user) => empty($user->id) && $user->id = Str::uuid()->toString());
     }
 }

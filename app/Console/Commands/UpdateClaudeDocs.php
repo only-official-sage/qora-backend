@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\File;
 class UpdateClaudeDocs extends Command
 {
     protected $signature = 'claude:update-docs';
+
     protected $description = 'Update CLAUDE.md documentation based on current codebase state';
 
     public function handle(): int
@@ -15,7 +16,7 @@ class UpdateClaudeDocs extends Command
         $this->info('Updating CLAUDE.md documentation...');
 
         $basePath = base_path();
-        $claudeDocPath = $basePath . '/CLAUDE.md';
+        $claudeDocPath = $basePath.'/CLAUDE.md';
 
         // Build the documentation content
         $content = $this->generateDocumentation();
@@ -23,13 +24,14 @@ class UpdateClaudeDocs extends Command
         File::put($claudeDocPath, $content);
 
         // Also update root .autoload if it exists
-        $autoloadPath = dirname($basePath) . '/.autoload';
+        $autoloadPath = dirname($basePath).'/.autoload';
         if (File::exists($autoloadPath) || is_dir(dirname($autoloadPath))) {
             File::put($autoloadPath, $content);
             $this->info('Updated .autoload file as well.');
         }
 
         $this->info('CLAUDE.md documentation updated successfully!');
+
         return 0;
     }
 
@@ -40,35 +42,36 @@ class UpdateClaudeDocs extends Command
         // Detect features
         $hasApiRoutes = file_exists(base_path('routes/api.php'));
         $hasCustomMiddleware = count(glob(app_path('Http/Middleware/*.php'))) > 1; // more than TrustProxies
-        $models = array_filter(glob(app_path('Models/*.php')), function($file) {
+        $models = array_filter(glob(app_path('Models/*.php')), function ($file) {
             return basename($file) !== 'User.php';
         });
-        $controllers = array_filter(glob(app_path('Http/Controllers/*.php')), function($file) {
+        $controllers = array_filter(glob(app_path('Http/Controllers/*.php')), function ($file) {
             // Actually we need to check non-base Controller files
             return basename($file) !== 'Controller.php';
         });
         $migrations = glob(database_path('migrations/*.php'));
-        $customMigrations = array_filter($migrations, function($file) {
+        $customMigrations = array_filter($migrations, function ($file) {
             $filename = basename($file);
-            return !str_contains($filename, 'create_users_table') &&
-                   !str_contains($filename, 'create_cache_table') &&
-                   !str_contains($filename, 'create_jobs_table');
+
+            return ! str_contains($filename, 'create_users_table') &&
+                   ! str_contains($filename, 'create_cache_table') &&
+                   ! str_contains($filename, 'create_jobs_table');
         });
 
         $doc = "# Qora Backend - Project Context for Claude\n\n";
         $doc .= "**Last Updated:** $now\n";
-        $doc .= "**Status:** " . $this->getStatus($hasApiRoutes, $models, $customMigrations, $hasCustomMiddleware) . "\n";
+        $doc .= '**Status:** '.$this->getStatus($hasApiRoutes, $models, $customMigrations, $hasCustomMiddleware)."\n";
         $doc .= "**Next Exploration Check:** Run `php artisan claude:update-docs` after significant changes\n\n";
         $doc .= "---\n\n";
 
         $doc .= "## 1. Quick Summary\n\n";
-        $doc .= "- **Framework:** Laravel " . $this->getLaravelVersion() . "\n";
+        $doc .= '- **Framework:** Laravel '.$this->getLaravelVersion()."\n";
         $doc .= "- **PHP:** ^8.2+\n";
-        $doc .= "- **Structure:** " . ($hasApiRoutes ? "Full-stack (Web + API)" : "Web-only") . " Laravel application\n";
-        $doc .= "- **Custom Models:** " . count($models) . "\n";
-        $doc .= "- **Custom Migrations:** " . count($customMigrations) . "\n";
-        $doc .= "- **API Endpoints:** " . ($hasApiRoutes ? "Defined in routes/api.php" : "None (web routes only)") . "\n";
-        $doc .= "- **Middleware:** " . ($hasCustomMiddleware ? "Custom middleware present" : "Standard Laravel only") . "\n\n";
+        $doc .= '- **Structure:** '.($hasApiRoutes ? 'Full-stack (Web + API)' : 'Web-only')." Laravel application\n";
+        $doc .= '- **Custom Models:** '.count($models)."\n";
+        $doc .= '- **Custom Migrations:** '.count($customMigrations)."\n";
+        $doc .= '- **API Endpoints:** '.($hasApiRoutes ? 'Defined in routes/api.php' : 'None (web routes only)')."\n";
+        $doc .= '- **Middleware:** '.($hasCustomMiddleware ? 'Custom middleware present' : 'Standard Laravel only')."\n\n";
 
         $doc .= "---\n\n";
         $doc .= $this->generateTechStackSection();
@@ -95,15 +98,17 @@ class UpdateClaudeDocs extends Command
     private function getStatus($hasApiRoutes, $models, $customMigrations, $hasCustomMiddleware): string
     {
         if ($hasApiRoutes || count($models) > 0 || count($customMigrations) > 0 || $hasCustomMiddleware) {
-            return "Active development - custom features present";
+            return 'Active development - custom features present';
         }
-        return "Fresh Laravel skeleton, minimal customization";
+
+        return 'Fresh Laravel skeleton, minimal customization';
     }
 
     private function getLaravelVersion(): string
     {
         $composer = json_decode(file_get_contents(base_path('composer.json')), true);
         $laravelVersion = $composer['require']['laravel/framework'] ?? '^12.x';
+
         return trim($laravelVersion, '^');
     }
 
@@ -114,7 +119,7 @@ class UpdateClaudeDocs extends Command
 
         $techStack = "## 2. Tech Stack\n\n";
         $techStack .= "### Backend\n";
-        $techStack .= "- **Framework:** Laravel " . ($this->getLaravelVersion()) . "\n";
+        $techStack .= '- **Framework:** Laravel '.($this->getLaravelVersion())."\n";
         $techStack .= "- **Language:** PHP 8.2+\n";
         $techStack .= "- **Authentication:** Laravel Sanctum (implied by framework)\n";
         $techStack .= "- **Database:** SQLite (default) or configurable via `.env`\n";
@@ -136,7 +141,7 @@ class UpdateClaudeDocs extends Command
         }
 
         $techStack .= "### Dev Tools\n";
-        $techStack .= "- **Testing:** PHPUnit " . ($composer['require-dev']['phpunit/phpunit'] ?? '^11.x') . "\n";
+        $techStack .= '- **Testing:** PHPUnit '.($composer['require-dev']['phpunit/phpunit'] ?? '^11.x')."\n";
         if (isset($composer['require-dev']['laravel/pint'])) {
             $techStack .= "- **Code Style:** Laravel Pint\n";
         }
@@ -158,23 +163,23 @@ class UpdateClaudeDocs extends Command
         $structure .= "├── app/\n";
         $structure .= "│   ├── Http/\n";
         $structure .= "│   │   └── Controllers/\n";
-        $structure .= "│   │       └── Controller.php (base, " . ($this->fileContains(base_path('app/Http/Controllers/Controller.php'), 'class Controller') ? "customizable" : "default") . ")\n";
+        $structure .= '│   │       └── Controller.php (base, '.($this->fileContains(base_path('app/Http/Controllers/Controller.php'), 'class Controller') ? 'customizable' : 'default').")\n";
         $structure .= "│   ├── Models/\n";
         $models = glob(app_path('Models/*.php'));
         foreach ($models as $model) {
-            $structure .= "│   │   └── " . basename($model) . "\n";
+            $structure .= '│   │   └── '.basename($model)."\n";
         }
         $structure .= "│   └── Providers/\n";
         $providers = glob(app_path('Providers/*.php'));
         foreach ($providers as $provider) {
-            $structure .= "│       └── " . basename($provider) . "\n";
+            $structure .= '│       └── '.basename($provider)."\n";
         }
         $structure .= "├── bootstrap/\n";
         $structure .= "│   └── app.php (framework bootstrap)\n";
         $structure .= "├── config/\n";
         $configs = glob(config_path('*.php'));
         foreach ($configs as $config) {
-            $structure .= "│   ├── " . basename($config) . "\n";
+            $structure .= '│   ├── '.basename($config)."\n";
         }
         $structure .= "├── database/\n";
         $structure .= "│   ├── migrations/ (standard Laravel migrations + custom)\n";
@@ -182,14 +187,14 @@ class UpdateClaudeDocs extends Command
             $structure .= "│   ├── factories/\n";
             $factories = glob(database_path('factories/*.php'));
             foreach ($factories as $factory) {
-                $structure .= "│   │   └── " . basename($factory) . "\n";
+                $structure .= '│   │   └── '.basename($factory)."\n";
             }
         }
         if (file_exists(database_path('seeders'))) {
             $structure .= "│   └── seeders/\n";
             $seeders = glob(database_path('seeders/*.php'));
             foreach ($seeders as $seeder) {
-                $structure .= "│       └── " . basename($seeder) . "\n";
+                $structure .= '│       └── '.basename($seeder)."\n";
             }
         }
         $structure .= "├── public/\n";
@@ -198,22 +203,22 @@ class UpdateClaudeDocs extends Command
         $structure .= "│   ├── js/\n";
         $jsFiles = glob(resource_path('js/*.js'));
         foreach ($jsFiles as $js) {
-            $structure .= "│   │   └── " . basename($js) . "\n";
+            $structure .= '│   │   └── '.basename($js)."\n";
         }
         if (file_exists(resource_path('views'))) {
             $structure .= "│   └── views/\n";
             $views = glob(resource_path('views/*.blade.php'));
             foreach (array_slice($views, 0, 5) as $view) {
-                $structure .= "│       └── " . basename($view) . "\n";
+                $structure .= '│       └── '.basename($view)."\n";
             }
             if (count($views) > 5) {
-                $structure .= "│       ... +" . (count($views) - 5) . " more views\n";
+                $structure .= '│       ... +'.(count($views) - 5)." more views\n";
             }
         }
         $structure .= "├── routes/\n";
         $routeFiles = glob(base_path('routes/*.php'));
         foreach ($routeFiles as $route) {
-            $structure .= "│   ├── " . basename($route) . "\n";
+            $structure .= '│   ├── '.basename($route)."\n";
         }
         $structure .= "├── storage/ (logs, cache, framework files)\n";
         $structure .= "├── tests/\n";
@@ -306,8 +311,8 @@ class UpdateClaudeDocs extends Command
                         $reflection = new \ReflectionClass("App\\Models\\$basename");
                         $defaults = $reflection->getDefaultProperties();
                         $fillable = $defaults['fillable'] ?? null;
-                        if (is_array($fillable) && !empty($fillable)) {
-                            $section .= "- Fillable: `" . implode(', ', $fillable) . "`\n";
+                        if (is_array($fillable) && ! empty($fillable)) {
+                            $section .= '- Fillable: `'.implode(', ', $fillable)."`\n";
                         }
                     } catch (\ReflectionException $e) {
                         // Class might not be loaded yet
@@ -331,16 +336,16 @@ class UpdateClaudeDocs extends Command
             $lines = explode("\n", $webContent);
             $routeLines = [];
             foreach ($lines as $line) {
-                if (str_contains($line, 'Route::') && str_contains($line, "->")) {
+                if (str_contains($line, 'Route::') && str_contains($line, '->')) {
                     $routeLines[] = trim($line);
                 }
             }
             if (empty($routeLines)) {
                 $section .= "```\n// Standard Laravel welcome route or custom routes\n```\n";
             } else {
-                $section .= "```\n" . implode("\n", array_slice($routeLines, 0, 10)) . "\n```\n";
+                $section .= "```\n".implode("\n", array_slice($routeLines, 0, 10))."\n```\n";
                 if (count($routeLines) > 10) {
-                    $section .= "... plus " . (count($routeLines) - 10) . " more routes\n";
+                    $section .= '... plus '.(count($routeLines) - 10)." more routes\n";
                 }
             }
         }
@@ -351,13 +356,13 @@ class UpdateClaudeDocs extends Command
             $lines = explode("\n", $apiContent);
             $routeLines = [];
             foreach ($lines as $line) {
-                if (str_contains($line, 'Route::') && str_contains($line, "->")) {
+                if (str_contains($line, 'Route::') && str_contains($line, '->')) {
                     $routeLines[] = trim($line);
                 }
             }
-            $section .= "```\n" . implode("\n", array_slice($routeLines, 0, 15)) . "\n```\n";
+            $section .= "```\n".implode("\n", array_slice($routeLines, 0, 15))."\n```\n";
             if (count($routeLines) > 15) {
-                $section .= "... plus " . (count($routeLines) - 15) . " more routes\n";
+                $section .= '... plus '.(count($routeLines) - 15)." more routes\n";
             }
         } else {
             $section .= "\n*No API routes exist yet (routes/api.php is not present).*\n";
@@ -383,24 +388,24 @@ class UpdateClaudeDocs extends Command
         }
 
         $section .= "\n### Session (`config/session.php`)\n";
-        $section .= "- Driver: `" . config('session.driver', 'file') . "`\n";
-        $section .= "- Lifetime: " . config('session.lifetime', 120) . " minutes\n";
-        $section .= "- Encrypt: " . (config('session.encrypt') ? 'true' : 'false') . "\n";
+        $section .= '- Driver: `'.config('session.driver', 'file')."`\n";
+        $section .= '- Lifetime: '.config('session.lifetime', 120)." minutes\n";
+        $section .= '- Encrypt: '.(config('session.encrypt') ? 'true' : 'false')."\n";
 
         $section .= "\n### Cache (`config/cache.php`)\n";
-        $section .= "- Default store: `" . config('cache.default', 'file') . "`\n";
+        $section .= '- Default store: `'.config('cache.default', 'file')."`\n";
         $section .= "- Prefix: configurable via `CACHE_PREFIX`\n";
 
         $section .= "\n### Queue (`config/queue.php`)\n";
-        $section .= "- Default connection: `" . config('queue.default', 'sync') . "`\n";
-        $section .= "- `after_commit`: " . (config('queue.after_commit') ? 'true' : 'false') . "\n";
+        $section .= '- Default connection: `'.config('queue.default', 'sync')."`\n";
+        $section .= '- `after_commit`: '.(config('queue.after_commit') ? 'true' : 'false')."\n";
 
         $section .= "\n### Mail (`config/mail.php`)\n";
-        $section .= "- Mailer: `" . config('mail.default', 'log') . "`\n";
-        $section .= "- From address: `" . config('mail.from.address', 'hello@example.com') . "`\n";
+        $section .= '- Mailer: `'.config('mail.default', 'log')."`\n";
+        $section .= '- From address: `'.config('mail.from.address', 'hello@example.com')."`\n";
 
         $section .= "\n### Logging (`config/logging.php`)\n";
-        $section .= "- Default channel: `" . config('logging.default', 'stack') . "`\n";
+        $section .= '- Default channel: `'.config('logging.default', 'stack')."`\n";
         $section .= "- Stack channel configured (daily & single file)\n";
 
         return $section;
@@ -443,7 +448,7 @@ class UpdateClaudeDocs extends Command
 
     private function generateCurrentState($hasApiRoutes, $models, $customMigrations, $hasCustomMiddleware): string
     {
-        $section = "## 12. Current State Summary (" . now()->format('Y-m-d') . ")\n\n";
+        $section = '## 12. Current State Summary ('.now()->format('Y-m-d').")\n\n";
 
         $customModelCount = count($models);
         $customMigrationCount = count($customMigrations);
@@ -477,20 +482,28 @@ class UpdateClaudeDocs extends Command
         }
 
         $section .= "\n### Not Yet Implemented\n";
-        if ($customModelCount == 0) $section .= "- ❌ Custom models beyond User\n";
-        if ($customMigrationCount == 0) $section .= "- ❌ Custom database tables\n";
-        if (!$hasApiRoutes) $section .= "- ❌ API routes\n";
-        if (!$hasCustomMiddleware) $section .= "- ❌ Custom middleware\n";
+        if ($customModelCount == 0) {
+            $section .= "- ❌ Custom models beyond User\n";
+        }
+        if ($customMigrationCount == 0) {
+            $section .= "- ❌ Custom database tables\n";
+        }
+        if (! $hasApiRoutes) {
+            $section .= "- ❌ API routes\n";
+        }
+        if (! $hasCustomMiddleware) {
+            $section .= "- ❌ Custom middleware\n";
+        }
 
         // Check for controllers (excluding base)
         $controllers = glob(app_path('Http/Controllers/*.php'));
-        $customControllers = array_filter($controllers, function($c) {
+        $customControllers = array_filter($controllers, function ($c) {
             return basename($c) !== 'Controller.php';
         });
         if (empty($customControllers)) {
             $section .= "- ❌ Custom controllers\n";
         } else {
-            $section .= "- ✅ " . count($customControllers) . " custom controller(s)\n";
+            $section .= '- ✅ '.count($customControllers)." custom controller(s)\n";
         }
 
         // Check for views
@@ -498,7 +511,7 @@ class UpdateClaudeDocs extends Command
         if (count($views) <= 1) { // Only welcome.blade.php
             $section .= "- ❌ Custom views\n";
         } else {
-            $section .= "- ✅ " . count($views) . " view(s)\n";
+            $section .= '- ✅ '.count($views)." view(s)\n";
         }
 
         $section .= "- ❌ Tests beyond examples\n";
@@ -547,14 +560,17 @@ class UpdateClaudeDocs extends Command
         $notes .= "9. **Migrations:** Use `php artisan make:migration create_xxx_table`\n";
         $notes .= "10. **Factories & Seeders:** `php artisan make:factory`, `php artisan make:seeder`\n\n";
         $notes .= "---\n\n";
-        $notes .= "*Generated by Claude Code via `php artisan claude:update-docs`. Keep this updated as the project evolves.*";
+        $notes .= '*Generated by Claude Code via `php artisan claude:update-docs`. Keep this updated as the project evolves.*';
 
         return $notes;
     }
 
     private function fileContains($path, $needle): bool
     {
-        if (!file_exists($path)) return false;
+        if (! file_exists($path)) {
+            return false;
+        }
+
         return strpos(file_get_contents($path), $needle) !== false;
     }
 }

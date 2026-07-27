@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
-use App\Models\Admin;
 
 class AdminAddress extends Model
 {
@@ -59,5 +58,4 @@ class AdminAddress extends Model
     {
         return $this->belongsTo(Admin::class);
     }
-
 }

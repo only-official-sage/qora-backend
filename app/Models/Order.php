@@ -4,13 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
-use App\Models\Admin;
 
 class Order extends Model
 {
     protected $fillable = ['admin_id', 'staff_id', 'table_id', 'order', 'status', 'report_status', 'report_reason'];
 
     public $incrementing = false;
+
     protected $keyType = 'string';
 
     protected $casts = [

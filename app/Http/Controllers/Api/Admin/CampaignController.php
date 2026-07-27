@@ -10,10 +10,20 @@ use Illuminate\Support\Facades\Storage;
 
 class CampaignController extends Controller
 {
-    /**
-     * Create a new campaign
-     * Returns: function description only, no implementation
-     */
+    public function index()
+    {
+        $campaigns = Campaign::where('admin_id', auth()->id())->get();
+
+        return response()->json($campaigns);
+    }
+
+    public function show($id)
+    {
+        $campaign = Campaign::where('admin_id', auth()->id())->findOrFail($id);
+
+        return response()->json($campaign);
+    }
+
     public function create(Request $request): JsonResponse
     {
         $validated = $request->validate([
@@ -23,7 +33,7 @@ class CampaignController extends Controller
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        $validated['admin_id'] = auth('admin')->user()->id;
+        $validated['admin_id'] = auth()->id();
 
         if ($request->hasFile('image')) {
             $validated['image'] = $request->file('image')->store('campaigns', 'public');
@@ -34,25 +44,32 @@ class CampaignController extends Controller
         return response()->json($campaign, 201);
     }
 
-    /**
-     * Edit an existing campaign
-     * Returns: function description only, no implementation
-     */
-    public function edit(int $id): JsonResponse
+    public function edit(Request $request, $id): JsonResponse
     {
-        return response()->json([
-            'message' => 'Campaign edit endpoint',
-            'description' => "This endpoint updates campaign with ID {$id}. Accepts parameters: name, description, start_date, end_date, budget, target_audience, status, etc.",
-            'status' => 'descriptor_only'
+        $campaign = Campaign::where('admin_id', auth()->id())->findOrFail($id);
+
+        $validated = $request->validate([
+            'name' => 'sometimes|string|max:255',
+            'audience' => 'sometimes|in:VIP,ROOM,TABLE,BAR,CUSTOM',
+            'description' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
+
+        if ($request->hasFile('image')) {
+            if ($campaign->image) {
+                Storage::disk('public')->delete($campaign->image);
+            }
+            $validated['image'] = $request->file('image')->store('campaigns', 'public');
+        }
+
+        $campaign->update($validated);
+
+        return response()->json($campaign);
     }
 
-    /**
-     * Delete a campaign
-     */
     public function destroy(int $id): JsonResponse
     {
-        $campaign = Campaign::findOrFail($id);
+        $campaign = Campaign::where('admin_id', auth()->id())->findOrFail($id);
 
         if ($campaign->image) {
             Storage::disk('public')->delete($campaign->image);

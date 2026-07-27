@@ -3,23 +3,26 @@
 namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Models\Order;
 use App\Models\Staff;
+use Illuminate\Http\Request;
 
 class StaffController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         $staffs = Staff::where('admin_id', auth()->id())->get();
+
         return response()->json($staffs);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+    public function show($id)
+    {
+        $staff = Staff::where('admin_id', auth()->id())->findOrFail($id);
+
+        return response()->json($staff);
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -45,25 +48,14 @@ class StaffController extends Controller
         return response()->json($staff, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
         $staff = Staff::where('admin_id', auth()->id())->findOrFail($id);
 
         $validated = $request->validate([
             'firstName' => 'sometimes|string|max:255',
             'lastName' => 'sometimes|string|max:255',
-            'email' => 'sometimes|email|unique:staffs,email,' . $staff->id,
+            'email' => 'sometimes|email|unique:staffs,email,'.$staff->id,
             'role' => 'sometimes|string|max:255',
             'workingdays' => 'sometimes|array',
             'workingdays.*.day' => 'sometimes|string',
@@ -90,11 +82,97 @@ class StaffController extends Controller
         return response()->json($staff);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        //
+        $staff = Staff::where('admin_id', auth()->id())->findOrFail($id);
+        $staff->delete();
+
+        return response()->json(null, 204);
+    }
+
+    public function changeRole(Request $request, $id)
+    {
+        $staff = Staff::where('admin_id', auth()->id())->findOrFail($id);
+
+        $validated = $request->validate([
+            'role' => 'required|string|max:255',
+        ]);
+
+        $staff->role = $validated['role'];
+        $staff->save();
+
+        return response()->json($staff);
+    }
+
+    public function leaderboard()
+    {
+        $adminId = $request->user() ? auth()->id() : null;
+
+        $staffs = Staff::where('admin_id', $adminId)
+            ->get()
+            ->map(function ($staff) {
+                $orderCount = $staff->orders()->count();
+
+                return [
+                    'id' => $staff->id,
+                    'fname' => $staff->fname,
+                    'lname' => $staff->lname,
+                    'role' => $staff->role,
+                    'orders_count' => $orderCount,
+                    'schedule' => $staff->schedule,
+                ];
+            })
+            ->sortByDesc('orders_count')
+            ->values();
+
+        return response()->json($staffs);
+    }
+
+    public function assign(Request $request)
+    {
+        $validated = $request->validate([
+            'staff_id' => 'required|string|exists:staffs,id',
+            'order_id' => 'required|string|exists:orders,id',
+        ]);
+
+        $order = Order::findOrFail($validated['order_id']);
+        $order->staff_id = $validated['staff_id'];
+        $order->save();
+
+        return response()->json($order);
+    }
+
+    public function assignments(Request $request)
+    {
+        $adminId = auth()->id();
+
+        $query = Order::where('admin_id', $adminId)
+            ->whereNotNull('staff_id')
+            ->with('staff');
+
+        if ($request->query('table_id')) {
+            $query->where('table_id', $request->query('table_id'));
+        }
+        if ($request->query('staff_id')) {
+            $query->where('staff_id', $request->query('staff_id'));
+        }
+
+        $orders = $query->get()->map(function ($order) {
+            return [
+                'id' => $order->id,
+                'table_id' => $order->table_id,
+                'status' => $order->status,
+                'order' => $order->order,
+                'staff' => $order->staff ? [
+                    'id' => $order->staff->id,
+                    'fname' => $order->staff->fname,
+                    'lname' => $order->staff->lname,
+                    'role' => $order->staff->role,
+                ] : null,
+                'created_at' => $order->created_at,
+            ];
+        });
+
+        return response()->json($orders);
     }
 }

@@ -1,11 +1,10 @@
 <?php
 
+use App\Http\Middleware\ForceApiJson;
+use App\Http\Middleware\JwtMiddleware;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
-use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use \App\Http\Middleware\JwtMiddleware;
-
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -15,7 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->append([\App\Http\Middleware\ForceApiJson::class]);
+        $middleware->append([ForceApiJson::class]);
         $middleware->alias(['jwt' => JwtMiddleware::class]);
     })
     ->withExceptions(function ($exceptions) {

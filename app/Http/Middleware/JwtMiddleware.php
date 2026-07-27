@@ -2,9 +2,9 @@
 
 namespace App\Http\Middleware;
 
+use App\Services\JwtService;
 use Closure;
 use Illuminate\Http\Request;
-use App\Services\JwtService;
 
 class JwtMiddleware
 {
@@ -12,7 +12,7 @@ class JwtMiddleware
 
     public function __construct()
     {
-        $this->jwtService = new JwtService();
+        $this->jwtService = new JwtService;
     }
 
     public function handle(Request $request, Closure $next)
@@ -21,17 +21,17 @@ class JwtMiddleware
         $token = $request->bearerToken();
 
         // 2. Fallback: Check HTTP-only 'token' cookie
-        if (!$token && $request->cookies->has('token')) {
+        if (! $token && $request->cookies->has('token')) {
             $token = $request->cookies->get('token');
         }
 
-        if (!$token) {
+        if (! $token) {
             return response()->json(['message' => 'Unauthorized - No token'], 401);
         }
 
         $admin = $this->jwtService->validate($token);
 
-        if (!$admin) {
+        if (! $admin) {
             return response()->json(['message' => 'Unauthorized - Invalid token'], 401);
         }
 

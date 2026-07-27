@@ -4,7 +4,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     public function up(): void
     {
         Schema::create('orders', function (Blueprint $table) {
@@ -13,9 +14,10 @@ return new class extends Migration {
             $table->uuid('staff_id')->nullable();
             $table->text('table_id');
             $table->json('order');
-            $table->enum('status', [0,1,2,3])->default(0);
+            $table->enum('status', ['pending', 'confirmed', 'cooking', 'served', 'completed', 'cancelled'])->default('pending');
             $table->integer('report_status')->nullable();
             $table->text('report_reason')->nullable();
+            $table->string('order_time')->nullable();
             $table->timestamps();
 
             $table->foreign('admin_id')->references('id')->on('admins')->onDelete('cascade');

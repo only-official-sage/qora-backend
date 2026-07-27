@@ -4,13 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
-use App\Models\Admin;
 
 class Dish extends Model
 {
     protected $fillable = ['admin_id', 'category_id', 'name', 'price', 'description', 'ingredients', 'image'];
 
     public $incrementing = false;
+
     protected $keyType = 'string';
 
     protected $casts = [

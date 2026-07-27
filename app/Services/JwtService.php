@@ -2,14 +2,15 @@
 
 namespace App\Services;
 
+use App\Models\Admin;
+use Firebase\JWT\ExpiredException;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
-use Firebase\JWT\ExpiredException;
-use App\Models\Admin;
 
 class JwtService
 {
     private string $secret;
+
     private int $ttl;
 
     public function __construct()
@@ -37,6 +38,7 @@ class JwtService
         try {
             $decoded = JWT::decode($token, new Key($this->secret, 'HS256'));
             $admin = Admin::find($decoded->sub);
+
             return $admin ?: null;
         } catch (ExpiredException $e) {
             return null;

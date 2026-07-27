@@ -2,12 +2,14 @@
 
 namespace App\Http;
 
+use App\Http\Middleware\CorsMiddleware;
+use App\Http\Middleware\JwtMiddleware;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 class Kernel extends HttpKernel
 {
     protected $middleware = [
-        \App\Http\Middleware\CorsMiddleware::class,
+        CorsMiddleware::class,
     ];
 
     protected $middlewareGroups = [
@@ -20,6 +22,6 @@ class Kernel extends HttpKernel
     ];
 
     protected $routeMiddleware = [
-        'jwt' => \App\Http\Middleware\JwtMiddleware::class,
+        'jwt' => JwtMiddleware::class,
     ];
 }

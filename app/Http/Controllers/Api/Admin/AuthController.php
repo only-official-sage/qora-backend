@@ -6,12 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Models\Admin;
 use App\Models\AdminAddress;
 use App\Models\AdminPayment;
-use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\DB;
 use App\Services\JwtService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
@@ -19,7 +19,7 @@ class AuthController extends Controller
 
     public function __construct()
     {
-        $this->jwtService = new JwtService();
+        $this->jwtService = new JwtService;
     }
 
     public function login(Request $request)
@@ -31,7 +31,7 @@ class AuthController extends Controller
 
         $admin = Admin::where('email', $validated['email'])->first();
 
-        if (!$admin || !Hash::check($validated['password'], $admin->password)) {
+        if (! $admin || ! Hash::check($validated['password'], $admin->password)) {
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
 
@@ -76,7 +76,7 @@ class AuthController extends Controller
         return DB::transaction(function () use ($validated) {
             // Handle logo upload
             $logoPath = null;
-            if (!empty($validated['logo'])) {
+            if (! empty($validated['logo'])) {
                 // Remove data:image/...;base64, prefix if present
                 $base64String = $validated['logo'];
                 if (str_contains($base64String, 'base64,')) {
@@ -84,7 +84,7 @@ class AuthController extends Controller
                 }
 
                 $imageData = base64_decode($base64String);
-                $filename = 'logos/' . Str::uuid() . '.png'; // Assuming PNG, could detect mime
+                $filename = 'logos/'.Str::uuid().'.png'; // Assuming PNG, could detect mime
                 Storage::disk('local')->put($filename, $imageData);
                 $logoPath = $filename;
             }
@@ -148,6 +148,7 @@ class AuthController extends Controller
     {
         // Clear the token cookie
         $cookie = cookie('token', '', -60, '/', null, false, true);
+
         return response()->json(['message' => 'Logged out successfully'])->withCookie($cookie);
     }
 
@@ -155,6 +156,7 @@ class AuthController extends Controller
     {
         $admin = $request->user();
         $admin->load('address', 'payment');
+
         return response()->json($admin);
     }
 
@@ -204,7 +206,7 @@ class AuthController extends Controller
                     $extension = 'gif';
                 }
             }
-            $filename = 'logos/' . Str::uuid() . '.' . $extension;
+            $filename = 'logos/'.Str::uuid().'.'.$extension;
             Storage::disk('local')->put($filename, $imageData);
             $newLogoPath = $filename;
         }
@@ -222,7 +224,7 @@ class AuthController extends Controller
             }
 
             $admin->save();
- 
+
             // Update address
             $address = $admin->address()->firstOrNew([]);
             $addressFields = ['address', 'country', 'state', 'city', 'country_code', 'phone_number'];
@@ -254,5 +256,24 @@ class AuthController extends Controller
         }
 
         return $response;
+    }
+
+    public function changePassword(Request $request)
+    {
+        $validated = $request->validate([
+            'current_password' => 'required|string',
+            'new_password' => 'required|string|min:6',
+        ]);
+
+        $admin = $request->user();
+
+        if (! Hash::check($validated['current_password'], $admin->password)) {
+            return response()->json(['message' => 'Current password is incorrect'], 422);
+        }
+
+        $admin->password = Hash::make($validated['new_password']);
+        $admin->save();
+
+        return response()->json(['message' => 'Password changed successfully']);
     }
 }
