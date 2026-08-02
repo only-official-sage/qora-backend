@@ -10,7 +10,7 @@ class DishController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Dish::with('category')->where('admin_id', auth()->id());
+        $query = Dish::with('category')->where('admin_id', $request->user()->getKey());
 
         if ($request->query('category_id')) {
             $query->where('category_id', $request->query('category_id'));
@@ -41,9 +41,9 @@ class DishController extends Controller
         return response()->json($dishes);
     }
 
-    public function show($id)
+    public function show(Request $request, $id)
     {
-        $dish = Dish::where('admin_id', auth()->id())->with('category')->findOrFail($id);
+        $dish = Dish::where('admin_id', $request->user()->getKey())->with('category')->findOrFail($id);
 
         return response()->json([
             'id' => $dish->id,
@@ -70,11 +70,11 @@ class DishController extends Controller
         ]);
 
         $category = DishCategory::where('id', $category_id)
-            ->where('admin_id', auth()->id())
+            ->where('admin_id', $request->user()->getKey())
             ->firstOrFail();
 
         $dish = Dish::create([
-            'admin_id' => auth()->id(),
+            'admin_id' => $request->user()->getKey(),
             'category_id' => $category->id,
             'name' => $validated['name'],
             'price' => $validated['price'],
@@ -92,7 +92,7 @@ class DishController extends Controller
 
     public function update(Request $request, $id)
     {
-        $dish = Dish::where('admin_id', auth()->id())->findOrFail($id);
+        $dish = Dish::where('admin_id', $request->user()->getKey())->findOrFail($id);
 
         $validated = $request->validate([
             'name' => 'sometimes|string|max:255',
@@ -111,11 +111,12 @@ class DishController extends Controller
         return response()->json($dish);
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-        $dish = Dish::where('admin_id', auth()->id())->findOrFail($id);
+        $dish = Dish::where('admin_id', $request->user()->getKey())->findOrFail($id);
         $dish->delete();
 
         return response()->json(null, 204);
     }
 }
+

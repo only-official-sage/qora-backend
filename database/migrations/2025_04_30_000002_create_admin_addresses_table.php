@@ -8,19 +8,18 @@ return new class extends Migration
 {
     public function up()
     {
-        Schema::create('admin_addresses', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->uuid('admin_id')->constrained()->onDelete('cascade');
-            $table->text('address');
-            $table->string('country');
-            $table->string('state');
-            $table->string('city')->nullable();
-            $table->string('country_code');
-            $table->string('phone_number');
-            $table->timestamps();
-
-            $table->unique('admin_id'); // one-to-one relationship
-        });
+     Schema::create('admin_addresses', function (Blueprint $table) {
+    $table->uuid('id')->primary();
+    $table->uuid('admin_id')->constrained()->onDelete('cascade');
+    $table->text('address')->nullable();
+    $table->string('country')->nullable();
+    $table->string('state')->nullable();
+    $table->string('city')->nullable();
+    $table->string('country_code')->nullable();
+    $table->string('phone_number')->nullable();
+    $table->timestamps();
+    $table->unique('admin_id');
+});
     }
 
     public function down()

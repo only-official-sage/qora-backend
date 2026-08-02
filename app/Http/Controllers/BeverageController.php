@@ -10,7 +10,7 @@ class BeverageController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Beverage::with('category')->where('admin_id', auth()->id());
+        $query = Beverage::with('category')->where('admin_id', $request->user()->getKey());
 
         if ($request->query('category_id')) {
             $query->where('category_id', $request->query('category_id'));
@@ -34,9 +34,9 @@ class BeverageController extends Controller
         return response()->json($beverages);
     }
 
-    public function show($id)
+    public function show(Request $request, $id)
     {
-        $beverage = Beverage::where('admin_id', auth()->id())->with('category')->findOrFail($id);
+        $beverage = Beverage::where('admin_id', $request->user()->getKey())->with('category')->findOrFail($id);
 
         return response()->json([
             'id' => $beverage->id,
@@ -63,11 +63,11 @@ class BeverageController extends Controller
         ]);
 
         $category = BeverageCategory::where('id', $category_id)
-            ->where('admin_id', auth()->id())
+            ->where('admin_id', $request->user()->getKey())
             ->firstOrFail();
 
         $beverage = Beverage::create([
-            'admin_id' => auth()->id(),
+            'admin_id' => $request->user()->getKey(),
             'category_id' => $category->id,
             'name' => $validated['name'],
             'price' => $validated['price'],
@@ -85,7 +85,7 @@ class BeverageController extends Controller
 
     public function update(Request $request, $id)
     {
-        $beverage = Beverage::where('admin_id', auth()->id())->findOrFail($id);
+        $beverage = Beverage::where('admin_id', $request->user()->getKey())->findOrFail($id);
 
         $validated = $request->validate([
             'name' => 'sometimes|string|max:255',
@@ -104,11 +104,12 @@ class BeverageController extends Controller
         return response()->json($beverage);
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-        $beverage = Beverage::where('admin_id', auth()->id())->findOrFail($id);
+        $beverage = Beverage::where('admin_id', $request->user()->getKey())->findOrFail($id);
         $beverage->delete();
 
         return response()->json(null, 204);
     }
 }
+

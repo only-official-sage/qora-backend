@@ -9,16 +9,15 @@ use Illuminate\Http\Request;
 
 class StaffController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $staffs = Staff::where('admin_id', auth()->id())->get();
-
+        $staffs = Staff::where('admin_id', $request->user()->id)->get();
         return response()->json($staffs);
     }
 
-    public function show($id)
+    public function show(Request $request, $id)
     {
-        $staff = Staff::where('admin_id', auth()->id())->findOrFail($id);
+        $staff = Staff::where('admin_id', $request->user()->id)->findOrFail($id);
 
         return response()->json($staff);
     }
@@ -37,7 +36,7 @@ class StaffController extends Controller
         ]);
 
         $staff = Staff::create([
-            'admin_id' => auth()->id(),
+            'admin_id' => $request->user()->id,
             'fname' => $validated['firstName'],
             'lname' => $validated['lastName'],
             'email' => $validated['email'],
@@ -50,7 +49,7 @@ class StaffController extends Controller
 
     public function update(Request $request, $id)
     {
-        $staff = Staff::where('admin_id', auth()->id())->findOrFail($id);
+        $staff = Staff::where('admin_id', $request->user()->id)->findOrFail($id);
 
         $validated = $request->validate([
             'firstName' => 'sometimes|string|max:255',
@@ -82,9 +81,9 @@ class StaffController extends Controller
         return response()->json($staff);
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-        $staff = Staff::where('admin_id', auth()->id())->findOrFail($id);
+        $staff = Staff::where('admin_id', $request->user()->id)->findOrFail($id);
         $staff->delete();
 
         return response()->json(null, 204);
@@ -92,7 +91,7 @@ class StaffController extends Controller
 
     public function changeRole(Request $request, $id)
     {
-        $staff = Staff::where('admin_id', auth()->id())->findOrFail($id);
+        $staff = Staff::where('admin_id', $request->user()->id)->findOrFail($id);
 
         $validated = $request->validate([
             'role' => 'required|string|max:255',
@@ -104,9 +103,9 @@ class StaffController extends Controller
         return response()->json($staff);
     }
 
-    public function leaderboard()
+    public function leaderboard(Request $request)
     {
-        $adminId = $request->user() ? auth()->id() : null;
+        $adminId = $request->user()->id;
 
         $staffs = Staff::where('admin_id', $adminId)
             ->get()
@@ -144,7 +143,7 @@ class StaffController extends Controller
 
     public function assignments(Request $request)
     {
-        $adminId = auth()->id();
+        $adminId = $request->user()->id;
 
         $query = Order::where('admin_id', $adminId)
             ->whereNotNull('staff_id')

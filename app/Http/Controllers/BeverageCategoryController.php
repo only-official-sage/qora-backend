@@ -7,16 +7,16 @@ use Illuminate\Http\Request;
 
 class BeverageCategoryController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $categories = BeverageCategory::where('admin_id', auth()->id())->get();
+        $categories = BeverageCategory::where('admin_id', $request->user()->getKey())->get();
 
         return response()->json($categories);
     }
 
-    public function show($id)
+    public function show(Request $request, $id)
     {
-        $category = BeverageCategory::where('admin_id', auth()->id())->findOrFail($id);
+        $category = BeverageCategory::where('admin_id', $request->user()->getKey())->findOrFail($id);
 
         return response()->json($category);
     }
@@ -28,7 +28,7 @@ class BeverageCategoryController extends Controller
         ]);
 
         $category = BeverageCategory::create([
-            'admin_id' => auth()->id(),
+            'admin_id' => $request->user()->getKey(),
             'name' => $validated['name'],
         ]);
 
@@ -37,7 +37,7 @@ class BeverageCategoryController extends Controller
 
     public function update(Request $request, $id)
     {
-        $category = BeverageCategory::where('admin_id', auth()->id())->findOrFail($id);
+        $category = BeverageCategory::where('admin_id', $request->user()->getKey())->findOrFail($id);
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -48,9 +48,9 @@ class BeverageCategoryController extends Controller
         return response()->json($category);
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-        $category = BeverageCategory::where('admin_id', auth()->id())->findOrFail($id);
+        $category = BeverageCategory::where('admin_id', $request->user()->getKey())->findOrFail($id);
 
         if ($category->beverages()->count() > 0) {
             return response()->json(['message' => 'Cannot delete category with beverages'], 422);
@@ -61,3 +61,4 @@ class BeverageCategoryController extends Controller
         return response()->json(null, 204);
     }
 }
+

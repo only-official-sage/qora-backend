@@ -61,16 +61,16 @@ class AuthController extends Controller
             'business_type' => 'required|in:Restaurant,Hotel,Restaurant and Hotel',
             'logo' => 'nullable|string', // base64 string
             // Payments
-            'bank_name' => 'required|string',
-            'account_number' => 'required|string',
-            'account_holder_name' => 'required|string',
+            'bank_name' => 'nullable|string',
+            'account_number' => 'nullable|string',
+            'account_holder_name' => 'nullable|string',
             // Company Address Information
-            'address' => 'required|string',
-            'country' => 'required|string',
-            'state' => 'required|string',
+            'address' => 'nullable|string',
+            'country' => 'nullable|string',
+            'state' => 'nullable|string',
             'city' => 'nullable|string',
-            'country_code' => 'required|string',
-            'phone_number' => 'required|string',
+            'country_code' => 'nullable|string',
+            'phone_number' => 'nullable|string',
         ]);
 
         return DB::transaction(function () use ($validated) {
@@ -85,7 +85,8 @@ class AuthController extends Controller
 
                 $imageData = base64_decode($base64String);
                 $filename = 'logos/'.Str::uuid().'.png'; // Assuming PNG, could detect mime
-                Storage::disk('local')->put($filename, $imageData);
+                // Storage::disk('local')->put($filename, $imageData);
+                Storage::disk('public')->put($filename, $imageData);
                 $logoPath = $filename;
             }
 
@@ -104,20 +105,20 @@ class AuthController extends Controller
             // Create address
             AdminAddress::create([
                 'admin_id' => $admin->id,
-                'address' => $validated['address'],
-                'country' => $validated['country'],
-                'state' => $validated['state'],
-                'city' => $validated['city'],
-                'country_code' => $validated['country_code'],
-                'phone_number' => $validated['phone_number'],
+                'address' => $validated['address'] ?? null,
+                'country' => $validated['country'] ?? null,
+                'state' => $validated['state'] ?? null,
+                'city' => $validated['city'] ?? null,
+                'country_code' => $validated['country_code'] ?? null,
+                'phone_number' => $validated['phone_number'] ?? null,
             ]);
 
             // Create payment
             AdminPayment::create([
                 'admin_id' => $admin->id,
-                'bank_name' => $validated['bank_name'],
-                'account_number' => $validated['account_number'],
-                'account_holder_name' => $validated['account_holder_name'],
+                'bank_name' => $validated['bank_name'] ?? null,
+                'account_number' => $validated['account_number'] ?? null,
+                'account_holder_name' => $validated['account_holder_name'] ?? null,
             ]);
 
             // Set httpOnly cookie
@@ -207,7 +208,8 @@ class AuthController extends Controller
                 }
             }
             $filename = 'logos/'.Str::uuid().'.'.$extension;
-            Storage::disk('local')->put($filename, $imageData);
+            //  Storage::disk('local')->put($filename, $imageData);
+            Storage::disk('public')->put($filename, $imageData);
             $newLogoPath = $filename;
         }
 
@@ -252,7 +254,8 @@ class AuthController extends Controller
 
         // Delete old logo after successful commit
         if ($newLogoPath !== null && $oldLogo) {
-            Storage::disk('local')->delete($oldLogo);
+            // Storage::disk('local')->delete($oldLogo);
+            Storage::disk('public')->delete($oldLogo);
         }
 
         return $response;

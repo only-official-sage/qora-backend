@@ -12,12 +12,18 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->uuid('admin_id')->constrained()->onDelete('cascade');
             $table->string('name');
-            $table->enum('audience', ['VIP', 'ROOM', 'TABLE', 'BAR', 'CUSTOM']);
+            $table->enum('audience', [
+    'ALL_CUSTOMERS',
+    'REPEAT_CUSTOMERS',
+    'RECENT_CUSTOMERS',
+]);
             $table->text('description')->nullable();
             $table->string('image')->nullable();
             $table->timestamps();
         });
     }
+
+    
 
     public function down(): void
     {
