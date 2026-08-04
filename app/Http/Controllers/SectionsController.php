@@ -7,10 +7,10 @@ use Illuminate\Http\Request;
 
 class SectionsController extends Controller
 {
-     public function index()
-     {
-         return response()->json(Section::where('admin_id', auth()->id())->paginate(10));
-     }
+    public function index(Request $request)
+{
+    return response()->json(Section::where('admin_id', $request->user()->id)->paginate(10));
+}
 
 //     public function index()
 // {
