@@ -22,7 +22,7 @@ return [
     ],
 
     'allowed_origins_patterns' => [
-        '^https://qora-real-.*\.vercel\.app$',
+        'https://qora-real-*.vercel.app',
     ],
 
     'allowed_headers' => ['*'],
