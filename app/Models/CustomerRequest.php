@@ -7,7 +7,9 @@ use Illuminate\Support\Str;
 
 class CustomerRequest extends Model
 {
-    protected $fillable = ['admin_id', 'table_id', 'type', 'status', 'note'];
+    protected $table = 'requests';
+    
+    protected $fillable = ['admin_id', 'table_id', 'type', 'status', 'note', 'payload'];
 
     public $incrementing = false;
 
@@ -16,6 +18,7 @@ class CustomerRequest extends Model
     protected $casts = [
         'type' => 'string',
         'status' => 'string',
+        'payload' => 'array',
     ];
 
     protected static function boot()

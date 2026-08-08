@@ -179,3 +179,8 @@ Route::prefix('orders')->group(function () {
     Route::put('/{admin_id}/{id}', [OrderController::class, 'update']);
     Route::delete('/{admin_id}/{id}', [OrderController::class, 'destroy']);
 });
+
+// Public customer-facing requests endpoints
+Route::prefix('requests')->group(function () {
+    Route::post('/{admin_id}', [\App\Http\Controllers\RequestController::class, 'publicStore']);
+});

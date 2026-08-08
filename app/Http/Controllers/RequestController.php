@@ -36,8 +36,9 @@ class RequestController extends Controller
     {
         $validated = $request->validate([
             'table_id' => 'nullable|string|exists:tables,id',
-            'type' => 'required|in:waiter,cleanup,other',
+            'type' => 'required|string',
             'note' => 'nullable|string',
+            'payload' => 'nullable|array',
         ]);
 
         $customerRequest = CustomerRequest::create([
@@ -46,6 +47,28 @@ class RequestController extends Controller
             'type' => $validated['type'],
             'status' => 'pending',
             'note' => $validated['note'] ?? null,
+            'payload' => $validated['payload'] ?? null,
+        ]);
+
+        return response()->json($customerRequest, 201);
+    }
+
+    public function publicStore(Request $request, string $admin_id)
+    {
+        $validated = $request->validate([
+            'table_id' => 'nullable|string|exists:tables,id',
+            'type' => 'required|string',
+            'note' => 'nullable|string',
+            'payload' => 'nullable|array',
+        ]);
+
+        $customerRequest = CustomerRequest::create([
+            'admin_id' => $admin_id,
+            'table_id' => $validated['table_id'] ?? null,
+            'type' => $validated['type'],
+            'status' => 'pending',
+            'note' => $validated['note'] ?? null,
+            'payload' => $validated['payload'] ?? null,
         ]);
 
         return response()->json($customerRequest, 201);
