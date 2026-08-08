@@ -42,13 +42,13 @@ class AuthController extends Controller
         $minutes = 60 * 24; // 24 hours
         // $secure = true; // MUST be true for SameSite=None
         // $sameSite = 'none'; // Required for cross-domain cookies (Vercel to Render)
-                $secure = env('APP_ENV') === 'production'; // secure only in production
-        $sameSite = 'strict';
+               $secure = true;
+$sameSite = 'none';
         $cookie = cookie('token', $token, $minutes, '/', null, $secure, true, false, $sameSite);
 
         return response()->json([
             'user' => $admin,
-            'token' => $token, // Add token to response body
+            'token' => $token, 
         ])->cookie($cookie);
     }
 
@@ -126,7 +126,7 @@ class AuthController extends Controller
             // Set httpOnly cookie
             $minutes = 60 * 24;
             $secure = env('APP_ENV') === 'production';
-            $sameSite = 'strict';
+            $sameSite = 'none';
             $cookie = cookie('token', $token, $minutes, '/', null, $secure, true, false, $sameSite);
 
             return response()->json([
