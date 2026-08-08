@@ -1,4 +1,4 @@
-<!-- <?php
+ <?php
 
 // return [
 //     'paths' => ['api/*', 'speed', 'sanctum/csrf-cookie'],

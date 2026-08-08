@@ -46,7 +46,7 @@ Route::prefix('admin')->group(function () {
 
         return $next($request);
     }], function () {
-
+// Route::middleware('jwt')->group(function () {
         // Profile
         Route::get('/profile', [AuthController::class, 'profile']);
         Route::put('/profile', [AuthController::class, 'updateProfile']);

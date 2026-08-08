@@ -40,7 +40,9 @@ class AuthController extends Controller
 
         // Set httpOnly cookie with JWT
         $minutes = 60 * 24; // 24 hours
-        $secure = env('APP_ENV') === 'production'; // secure only in production
+        // $secure = true; // MUST be true for SameSite=None
+        // $sameSite = 'none'; // Required for cross-domain cookies (Vercel to Render)
+                $secure = env('APP_ENV') === 'production'; // secure only in production
         $sameSite = 'strict';
         $cookie = cookie('token', $token, $minutes, '/', null, $secure, true, false, $sameSite);
 
