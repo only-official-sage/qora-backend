@@ -21,9 +21,12 @@ return [
         'https://qora-real.vercel.app',
     ],
 
+    // 'allowed_origins_patterns' => [
+    //     'https://qora-real-*.vercel.app',
+    // ],
     'allowed_origins_patterns' => [
-        'https://qora-real-*.vercel.app',
-    ],
+    '#^https://qora-real-[a-z0-9]+-ugwuzor-davids-projects\.vercel\.app$#',
+],
 
     'allowed_headers' => ['*'],
 
