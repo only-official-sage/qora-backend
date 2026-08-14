@@ -86,7 +86,9 @@ class OrderController extends Controller
     // Admin-scoped endpoints
     public function adminIndex(Request $request)
     {
-        $query = Order::where('admin_id', auth()->id())->with('staff');
+        // $query = Order::where('admin_id', auth()->id())->with('staff');
+        $query = Order::where('admin_id', $request->user()->getKey())->with('staff');
+
 
         if ($request->query('status')) {
             $statusMap = [

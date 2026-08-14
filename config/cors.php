@@ -11,6 +11,7 @@
 //     'supports_credentials' => true,
 // ]; 
 
+
 return [
     'paths' => ['api/*', 'speed', 'sanctum/csrf-cookie'],
 
@@ -19,14 +20,13 @@ return [
     'allowed_origins' => [
         'http://localhost:5173',
         'https://qora-real.vercel.app',
+       'https://dock-dazzling-upfront.ngrok-free.dev',
     ],
 
-    // 'allowed_origins_patterns' => [
-    //     'https://qora-real-*.vercel.app',
-    // ],
     'allowed_origins_patterns' => [
-    '#^https://qora-real-[a-z0-9]+-ugwuzor-davids-projects\.vercel\.app$#',
-],
+        '#^https://qora-real-[a-z0-9]+-ugwuzor-davids-projects\.vercel\.app$#',
+        '#^https://[a-z0-9-]+\.ngrok-free\.dev$#', // matches any ngrok free-tier URL
+    ],
 
     'allowed_headers' => ['*'],
 

@@ -56,7 +56,8 @@ class RequestController extends Controller
     public function publicStore(Request $request, string $admin_id)
     {
         $validated = $request->validate([
-            'table_id' => 'nullable|string|exists:tables,id',
+            'table_id' => 'nullable|string',
+            'order_id' => 'nullable|string',
             'type' => 'required|string',
             'note' => 'nullable|string',
             'payload' => 'nullable|array',
@@ -65,6 +66,7 @@ class RequestController extends Controller
         $customerRequest = CustomerRequest::create([
             'admin_id' => $admin_id,
             'table_id' => $validated['table_id'] ?? null,
+            'order_id' => $validated['order_id'] ?? null,
             'type' => $validated['type'],
             'status' => 'pending',
             'note' => $validated['note'] ?? null,
